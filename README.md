@@ -12,10 +12,10 @@ Each source repo is tagged at the commit deployed on production at archive time.
 
 | Repo | Tag | Commit | Host | Purpose |
 |------|-----|--------|------|---------|
-| [Fry-Foundation/dbRewards](https://github.com/Fry-Foundation/dbRewards/tree/v1-archive-20260608) | `v1-archive-20260608` | `6bed8d49` | ARES00 | Core reward calculation + distribution engine |
-| [Fry-Foundation/hardwareapi-poc](https://github.com/Fry-Foundation/hardwareapi-poc/tree/v1-archive-20260608) | `v1-archive-20260608` | `241bbe54` | ZEUS00 | PoC eligibility gate + device activity tracking |
-| [Fry-Foundation/registration_portal](https://github.com/Fry-Foundation/registration_portal/tree/v1-archive-20260608) | `v1-archive-20260608` | `b222158d` | HERMES00 | Dashboard reward UI + claim API |
-| [Fry-Foundation/admin_panel](https://github.com/Fry-Foundation/admin_panel/tree/v1-archive-20260608) | `v1-archive-20260608` | `0c17aa27` | HERMES00 | Admin panel reward configuration |
+| [Fry-Foundation/dbRewards](https://github.com/Fry-Foundation/dbRewards/tree/v1-archive-20260608) | `v1-archive-20260608` | `6bed8d49` | <internal-host-ares> | Core reward calculation + distribution engine |
+| [Fry-Foundation/hardwareapi-poc](https://github.com/Fry-Foundation/hardwareapi-poc/tree/v1-archive-20260608) | `v1-archive-20260608` | `241bbe54` | <internal-host-zeus> | PoC eligibility gate + device activity tracking |
+| [Fry-Foundation/registration_portal](https://github.com/Fry-Foundation/registration_portal/tree/v1-archive-20260608) | `v1-archive-20260608` | `b222158d` | <internal-host-hermes> | Dashboard reward UI + claim API |
+| [Fry-Foundation/admin_panel](https://github.com/Fry-Foundation/admin_panel/tree/v1-archive-20260608) | `v1-archive-20260608` | `0c17aa27` | <internal-host-hermes> | Admin panel reward configuration |
 
 ### Git State at Archive Time
 
@@ -28,7 +28,7 @@ Each source repo is tagged at the commit deployed on production at archive time.
 
 ## MongoDB Collection Archive
 
-All collections from the `main` database on ARES00. BSON (full) + JSON (100-doc samples).
+All collections from the `main` database on <internal-host-ares>. BSON (full) + JSON (100-doc samples).
 
 | Collection | Documents | BSON Size | Purpose |
 |------------|-----------|-----------|---------|
@@ -44,7 +44,7 @@ All collections from the `main` database on ARES00. BSON (full) + JSON (100-doc 
 ### BSON Full Dumps
 
 Full BSON dumps (1.4 GB) exceed GitHub file limits. Available at:
-- **ARES00**: `/home/fry/backups/reward-archive-20260608/bson/`
+- **<internal-host-ares>**: `/home/fry/backups/reward-archive-20260608/bson/`
 - **GitHub Release**: attached as `reward-archive-20260608.tar.gz`
 
 This repo contains JSON samples (100 docs each) and BSON metadata (index definitions).
@@ -88,14 +88,14 @@ All must pass for `reward_eligible = true`:
 ## Distribution Chain
 
 ```
-hardwareapi (ZEUS00)       writes reward_eligible flag to PoC.hardware
+hardwareapi (<internal-host-zeus>)       writes reward_eligible flag to PoC.hardware
        |
-dbrewards (ARES00)         reads flag, calculates reward, records to device-rewards
+dbrewards (<internal-host-ares>)         reads flag, calculates reward, records to device-rewards
   - Hourly at xx:15        (accrual)
   - Friday 00:05 UTC       (weekly rollup)
   - Daily                  (30-day maturation: pending -> claimable)
        |
-dashboard (HERMES00)       claim API signs custodial ASA transfer
+dashboard (<internal-host-hermes>)       claim API signs custodial ASA transfer
   - 30% fee instant claim
   - Free after 1 month
   - Custodial: REWARD_MNEMONIC / REWARD_REKEY
@@ -120,10 +120,10 @@ user receives 70% in tFRY or fNODE to their reward_wallet
 
 | Reference | Location | Purpose |
 |-----------|----------|---------|
-| `REWARD_MNEMONIC` | HEPH00 /opt/fry-farm/.env | Primary reward treasury (rekeyed) |
-| `REWARD_REKEY` | HEPH00 /opt/fry-farm/.env | Signing authority for treasury |
-| `VOI_REWARD_MNEMONIC` | HEPH00 /opt/fry-farm/.env | Voi chain reward distribution |
-| `AUTOMATION_MNEMONIC` | HEPH00 /opt/fry-farm/.env | DistPoolV2 epoch automation |
+| `REWARD_MNEMONIC` | <internal-host-heph> /opt/fry-farm/.env | Primary reward treasury (rekeyed) |
+| `REWARD_REKEY` | <internal-host-heph> /opt/fry-farm/.env | Signing authority for treasury |
+| `VOI_REWARD_MNEMONIC` | <internal-host-heph> /opt/fry-farm/.env | Voi chain reward distribution |
+| `AUTOMATION_MNEMONIC` | <internal-host-heph> /opt/fry-farm/.env | DistPoolV2 epoch automation |
 
 ---
 
@@ -155,7 +155,7 @@ Key interfaces:
 - `main.devices` -- user identity, wallet, verification status
 - `main.products` -- 42 device types with reward rates
 - `PoC.hardware` -- device activity + eligibility flag
-- ATLAS00 algod (port 4190) -- Algorand mainnet
+- <internal-host-atlas> algod (port 4190) -- Algorand mainnet
 - Verification staking -- multiplier (3x staked, 0.5x unstaked)
 
 ---

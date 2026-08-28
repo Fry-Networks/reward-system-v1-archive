@@ -1,6 +1,6 @@
 # Fry Networks Miner Reward System — Full Recon Synthesis
 **Date**: 2026-06-08
-**Hosts touched**: ARES00, HERMES00, ZEUS00, HEPHAESTUS00 (read-only)
+**Hosts touched**: <internal-host-ares>, <internal-host-hermes>, <internal-host-zeus>, <internal-host-heph> (read-only)
 
 ---
 
@@ -8,8 +8,8 @@
 
 | System | Location | Purpose | Scope |
 |--------|----------|---------|-------|
-| **dbrewards** (ARES00) | `/home/fryadmin/projects/dbRewards` | Device-specific miner rewards (PoC-gated, weekly maturation) | THIS is the miner reward system being archived/replaced |
-| **fry.farm daily claim** (HEPH00) | `/opt/fry-farm/backend/controllers/rewardsController.js` | User-level daily FRY claim (CAPTCHA, anti-sybil, capped-hybrid) | SEPARATE system — stays, not part of archive |
+| **dbrewards** (<internal-host-ares>) | `/home/fryadmin/projects/dbRewards` | Device-specific miner rewards (PoC-gated, weekly maturation) | THIS is the miner reward system being archived/replaced |
+| **fry.farm daily claim** (<internal-host-heph>) | `/opt/fry-farm/backend/controllers/rewardsController.js` | User-level daily FRY claim (CAPTCHA, anti-sybil, capped-hybrid) | SEPARATE system — stays, not part of archive |
 
 The operator wants to archive/replace **dbrewards** (the miner reward system). The fry.farm daily claim is a different system entirely.
 
@@ -21,7 +21,7 @@ The operator wants to archive/replace **dbrewards** (the miner reward system). T
 
 Everything that IS the miner reward system — archive to its own GitHub repo before removal.
 
-### ARES00 — dbrewards core
+### <internal-host-ares> — dbrewards core
 
 **Codebase**: `/home/fryadmin/projects/dbRewards/`
 **Git**: `https://github.com/Fry-Foundation/dbRewards.git` (branch: `feat/virtual-mining-phase1`)
@@ -41,7 +41,7 @@ Everything that IS the miner reward system — archive to its own GitHub repo be
 - `dbrewards-sim` — simulation mode
 - `wix-sync` — product sync from Wix (15 min interval, 1048 products)
 
-**MongoDB collections** (all in `main` database on ARES00):
+**MongoDB collections** (all in `main` database on <internal-host-ares>):
 
 | Collection | Count | Archive? | Purpose |
 |------------|-------|----------|---------|
@@ -54,7 +54,7 @@ Everything that IS the miner reward system — archive to its own GitHub repo be
 | `products` | 42 | SHARED | Device type config — used by admin panel AND dbrewards |
 | `devices` | 19,926 | SHARED | Device registry — used by dashboard AND dbrewards |
 
-### ZEUS00 — hardwareapi (PoC eligibility + device registration)
+### <internal-host-zeus> — hardwareapi (PoC eligibility + device registration)
 
 **Codebase**: `/home/fry/subdomains/hardware_exe_api/`
 **Git**: `https://github.com/Fry-Foundation/hardwareapi-poc.git` (branch: `main`, clean)
@@ -72,7 +72,7 @@ Everything that IS the miner reward system — archive to its own GitHub repo be
 
 **Separate IoT pipeline**: `/home/fry/iot-slot-pipeline/main.py` (10-min async loop, writes directly to MongoDB)
 
-**MongoDB collections** (on ARES00, databases: PoC, creds, measurements):
+**MongoDB collections** (on <internal-host-ares>, databases: PoC, creds, measurements):
 
 | Collection | Database | Archive? | Purpose |
 |------------|----------|----------|---------|
@@ -85,7 +85,7 @@ Everything that IS the miner reward system — archive to its own GitHub repo be
 | `presearch` | PoC | YES | Presearch node connectivity (RDN partner) |
 | `*` | measurements | YES | Per-country measurement collections |
 
-### HERMES00 — dashboard reward UI + claim API
+### <internal-host-hermes> — dashboard reward UI + claim API
 
 **Dashboard codebase**: `/home/helpdesk/subdomains/dashb/`
 **Git**: `https://github.com/Fry-Foundation/registration_portal.git` (branch: `main`, clean)
@@ -159,10 +159,10 @@ Everything that IS the miner reward system — archive to its own GitHub repo be
 
 | Host | Schedule | Command | Purpose |
 |------|----------|---------|---------|
-| ARES00 | `0 3 * * *` | `/usr/local/bin/mongo_backup.sh` | Daily DB backup |
-| ARES00 | `0 5 * * 0` | `/usr/local/bin/mongo_test_restore.sh` | Weekly restore test |
-| ARES00 | `*/5 * * * *` | `/usr/local/bin/ares00_health_check.sh` | Health check |
-| HEPH00 | `30 0 * * *` | `feeDistributionCron.js` | Daily fee distribution (related) |
+| <internal-host-ares> | `0 3 * * *` | `/usr/local/bin/mongo_backup.sh` | Daily DB backup |
+| <internal-host-ares> | `0 5 * * 0` | `/usr/local/bin/mongo_test_restore.sh` | Weekly restore test |
+| <internal-host-ares> | `*/5 * * * *` | `/usr/local/bin/ares00_health_check.sh` | Health check |
+| <internal-host-heph> | `30 0 * * *` | `feeDistributionCron.js` | Daily fee distribution (related) |
 
 ---
 
@@ -170,7 +170,7 @@ Everything that IS the miner reward system — archive to its own GitHub repo be
 
 These will break when the reward system is ripped out:
 
-### Dashboard (HERMES00) — direct consumers
+### Dashboard (<internal-host-hermes>) — direct consumers
 
 | Component | Depends On | Impact |
 |-----------|-----------|--------|
@@ -182,7 +182,7 @@ These will break when the reward system is ripped out:
 | `useRewardSummary` / `useRewardSummaryBatch` hooks | `device-rewards` collection schema | Must update data source |
 | Floating totals widget | `device-rewards.total_claimable/total_claimed` | Must update data source |
 
-### Admin panel (HERMES00) — config writers
+### Admin panel (<internal-host-hermes>) — config writers
 
 | Component | Depends On | Impact |
 |-----------|-----------|--------|
@@ -192,7 +192,7 @@ These will break when the reward system is ripped out:
 | `rewards.tsx` page | All reward API endpoints | Page becomes dead |
 | `stakes.tsx` page | Staking API endpoints | Needs rewiring |
 
-### hardwareapi (ZEUS00) — eligibility writer
+### hardwareapi (<internal-host-zeus>) — eligibility writer
 
 | Component | Depends On | Impact |
 |-----------|-----------|--------|
@@ -201,7 +201,7 @@ These will break when the reward system is ripped out:
 | IoT pipeline (`/home/fry/iot-slot-pipeline/`) | Writes PoC slots to MongoDB | Writes continue but dbrewards gone |
 | `/admin/versions/{miner_code}/rewards` | Sets multiplier_base/multiplier_per_tool | Values no longer consumed |
 
-### fry.farm (HEPH00) — adjacent system
+### fry.farm (<internal-host-heph>) — adjacent system
 
 | Component | Depends On | Impact |
 |-----------|-----------|--------|
@@ -219,22 +219,22 @@ The NEW system must interface with these:
 
 | Source | How | Collection/Endpoint | Shape |
 |--------|-----|---------------------|-------|
-| hardwareapi (ZEUS00) | INSTALLER PoC docs | `PUT /PoC/{miner_key}/hardware` → `PoC.hardware` | `{miner_key, reward_eligible: bool, lastUpdated, software: {poc_version_installed}}` |
-| IoT pipeline (ZEUS00) | NON_INSTALLER polling | Direct MongoDB write → `PoC.hardware` | `{miner_key, online: bool, data: bool, slots array}` |
+| hardwareapi (<internal-host-zeus>) | INSTALLER PoC docs | `PUT /PoC/{miner_key}/hardware` → `PoC.hardware` | `{miner_key, reward_eligible: bool, lastUpdated, software: {poc_version_installed}}` |
+| IoT pipeline (<internal-host-zeus>) | NON_INSTALLER polling | Direct MongoDB write → `PoC.hardware` | `{miner_key, online: bool, data: bool, slots array}` |
 | hardwareapi leases | Installation heartbeats | `POST /installations/{miner_key}/installations/{id}` → `PoC.installations` | `{miner_key, install_id, last_seen_at, software_version}` |
 
 ### User/wallet identity
 
 | Source | Collection | Key Fields |
 |--------|-----------|------------|
-| `main.devices` | ARES00 MongoDB | `{miner_key, address (wallet), reward_wallet, verified, isRegistered, staked: {type, amount, txId}}` |
-| `main.registration-users` | ARES00 MongoDB | `{address, email, discordId (98.8% missing)}` |
+| `main.devices` | <internal-host-ares> MongoDB | `{miner_key, address (wallet), reward_wallet, verified, isRegistered, staked: {type, amount, txId}}` |
+| `main.registration-users` | <internal-host-ares> MongoDB | `{address, email, discordId (98.8% missing)}` |
 
 ### Miner type registry
 
 | Source | Collection | Shape |
 |--------|-----------|-------|
-| `main.products` | ARES00 MongoDB | `{key, name, wix_id, reward: {unverified, verified, stake: {stake_one, stake_two, register, node, stake_one_usd, stake_two_usd}, tokens: {staked, reward, register, node}}}` |
+| `main.products` | <internal-host-ares> MongoDB | `{key, name, wix_id, reward: {unverified, verified, stake: {stake_one, stake_two, register, node, stake_one_usd, stake_two_usd}, tokens: {staked, reward, register, node}}}` |
 
 42 products. Key types:
 - **High-reward nodes** (fNODE): RDN, SDN, SVN, CN — 119.04/day
@@ -249,8 +249,8 @@ The NEW system must interface with these:
 
 | Endpoint | Host | Port | Used For |
 |----------|------|------|----------|
-| algod | ATLAS00 | 4190 | Algorand mainnet queries + txn submission |
-| algod | ATLAS00 | 4191 | Voi mainnet queries |
+| algod | <internal-host-atlas> | 4190 | Algorand mainnet queries + txn submission |
+| algod | <internal-host-atlas> | 4191 | Voi mainnet queries |
 
 ### Verification staking
 
@@ -512,7 +512,7 @@ Claim: dashboard /api/rewards/claim → 30% fee → 70% ASA transfer to reward_w
 
 ### "Invalid Reward Amount" — Root Cause
 
-**Origin**: dbrewards on ARES00 (NOT hardwareapi)
+**Origin**: dbrewards on <internal-host-ares> (NOT hardwareapi)
 **Trigger**: INSTALLER devices with `reward_eligible === false` → dbrewards calculates 0 reward → validation rejects 0 as invalid
 **264 affected INSTALLER devices**: Likely failing one of the 3 PoC gates:
 - Version mismatch (poc_version_installed ≠ poc_version_needed)
@@ -536,10 +536,10 @@ Claim: dashboard /api/rewards/claim → 30% fee → 70% ASA transfer to reward_w
 
 | Wallet Reference | Location | ASAs | Purpose | New System Replaces |
 |-----------------|----------|------|---------|-------------------|
-| `REWARD_MNEMONIC` | HEPH00 `/opt/fry-farm/.env` | tFRY (2681521901), fNODE (2485202024) | Primary reward treasury (rekeyed) | YES — smart contract replaces |
-| `REWARD_REKEY` | HEPH00 `/opt/fry-farm/.env` | N/A (signing key only) | Rekey signing authority for REWARD_MNEMONIC | YES — contract-based signing |
-| `VOI_REWARD_MNEMONIC` | HEPH00 `/opt/fry-farm/.env` | vFRY (48968653) | Voi chain reward distribution | YES — if Voi rewards continue |
-| `AUTOMATION_MNEMONIC` | HEPH00 `/opt/fry-farm/.env` | ALGO | DistPoolV2 epoch automation + fee distribution | MAYBE — depends on if fee pipeline stays |
+| `REWARD_MNEMONIC` | <internal-host-heph> `/opt/fry-farm/.env` | tFRY (2681521901), fNODE (2485202024) | Primary reward treasury (rekeyed) | YES — smart contract replaces |
+| `REWARD_REKEY` | <internal-host-heph> `/opt/fry-farm/.env` | N/A (signing key only) | Rekey signing authority for REWARD_MNEMONIC | YES — contract-based signing |
+| `VOI_REWARD_MNEMONIC` | <internal-host-heph> `/opt/fry-farm/.env` | vFRY (48968653) | Voi chain reward distribution | YES — if Voi rewards continue |
+| `AUTOMATION_MNEMONIC` | <internal-host-heph> `/opt/fry-farm/.env` | ALGO | DistPoolV2 epoch automation + fee distribution | MAYBE — depends on if fee pipeline stays |
 
 ### Dashboard Custodial Signing
 
@@ -575,7 +575,7 @@ Eliminates:
 - All merchandise products (0 reward)
 
 ### GOES (archive then remove)
-- dbrewards Docker stack on ARES00
+- dbrewards Docker stack on <internal-host-ares>
 - dbrewards source code and all env config
 - Dashboard reward API routes (`/api/rewards/*`, `/api/fee/*`)
 - Dashboard reward UI components (Claim, Withdraw, Boost modals)
@@ -592,6 +592,6 @@ Eliminates:
 - `PoC.versions` collection → version requirements
 - hardwareapi PoC endpoint → writes activity data
 - IoT pipeline → writes NON_INSTALLER activity (if IoT ever gets rewards)
-- ATLAS00 algod → Algorand mainnet queries + txn submission
+- <internal-host-atlas> algod → Algorand mainnet queries + txn submission
 - Verification staking → multiplier determination
 - Dashboard UI → must display new contract-based reward data
